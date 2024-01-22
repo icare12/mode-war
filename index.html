@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendario War Mode</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f8f9fa;
+    }
+
+    .icono-dragging {
+      cursor: grab; /* Cambiar el cursor al icono de agarre durante el arrastre */
+    }
+
+    #titulo {
+      font-size: 24px;
+      font-weight: bold;
+      margin-top: 20px;
+      color: #3498db;
+    }
+
+    #controles {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+
+    button {
+      background-color: #3498db;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 5px;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #217dbb;
+    }
+
+    #mesActual {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 0 10px;
+      color: #555;
+    }
+
+    #mostrar-iconos-btn {
+      background-color: #3498db;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+
+    #mostrar-iconos-btn:hover {
+      background-color: #217dbb;
+    }
+
+    #iconos-container {
+      display: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .icono {
+      width: 40px;
+      height: 40px;
+      background-color: #3498db;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: move;
+      pointer-events: auto;
+      margin-bottom: 10px;
+      font-size: 20px;
+      transition: background-color 0.3s ease;
+    }
+
+    .icono:hover {
+      background-color: #217dbb;
+    }
+
+    #calendario-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    #calendario {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 10px;
+      padding: 20px;
+      border: 2px solid #3498db;
+      border-radius: 10px;
+      width: 560px; /* Ajustado para mostrar todos los días de la semana */
+      height: auto;
+      margin-top: 10px;
+      overflow: hidden; /* Evitar que los días se salgan del contenedor */
+    }
+
+    .dia {
+      text-align: center;
+      padding: 15px;
+      margin: 5px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column; /* Añadido para centrar contenido verticalmente */
+      position: relative; /* Añadido para posicionar el icono de forma absoluta */
+    }
+
+    .dia .icono {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .dia:hover {
+      background-color: #f0f0f0;
+    }
+
+    .nombre-dia {
+      font-weight: bold;
+      color: #555;
+    }
+
+    .vacio {
+      visibility: hidden;
+    }
+
+    #exportarJPG {
+      margin-top: 20px; /* Ajusta según sea necesario */
+      margin-bottom: 20px; /* Nuevo margen inferior para separar el botón del calendario */
+    }
+  </style>
+</head>
+
+<body>
+<iframe data-aa='2296876' src='//ad.a-ads.com/2296876?size=120x60' style='width:120px; height:60px; border:0px; padding:0; overflow:hidden; background-color: transparent;'></iframe>
+  <div id="titulo">Calendario War Mode</div>
+
+  <div id="controles">
+    <button id="prevYear">◄ Año Anterior</button>
+    <button id="prevMonth">◄ Mes Anterior</button>
+    <span id="mesActual"></span>
+    <button id="nextMonth">Mes Siguiente ►</button>
+    <button id="nextYear">Año Siguiente ►</button>
+  </div>
+
+  <button id="mostrar-iconos-btn">Metas del Mes</button>
+
+  <div id="iconos-container">
+    <!-- Iconos ubicados fuera del calendario -->
+    <div class="icono" draggable="true">💰</div>
+    <div class="icono" draggable="true">🏋️</div>
+    <div class="icono" draggable="true">🏢</div>
+    <div class="icono" draggable="true">🤝</div>
+    <div class="icono" draggable="true">🏢</div>
+    <div class="icono" draggable="true">🎥</div>
+    <div class="icono" draggable="true">💻</div>
+    <div class="icono" draggable="true">👩‍💼</div>
+    <div class="icono" draggable="true">📁</div>
+    <div class="icono" draggable="true">🚗</div>
+    <div class="icono" draggable="true">💼</div>
+    <div class="icono" draggable="true">🏦</div>
+    <div class="icono" draggable="true">📊</div>
+  </div>
+
+  <div id="calendario-container">
+    <div id="calendario"></div>
+  </div>
+
+  <!-- html2canvas -->
+  <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+  <!-- canvas2image -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/canvas2image/0.1.5/canvas2image.min.js"></script>
+
+  <button id="exportarJPG">Exportar a JPG</button>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const titulo = document.getElementById("titulo");
+      const iconosContainer = document.getElementById("iconos-container");
+      const mostrarIconosBtn = document.getElementById("mostrar-iconos-btn");
+      const calendario = document.getElementById("calendario");
+      const prevYearBtn = document.getElementById("prevYear");
+      const prevMonthBtn = document.getElementById("prevMonth");
+      const nextMonthBtn = document.getElementById("nextMonth");
+      const nextYearBtn = document.getElementById("nextYear");
+      const mesActualSpan = document.getElementById("mesActual");
+      const exportarJPGBtn = document.getElementById("exportarJPG");
+
+      const fechaActual = new Date();
+      let year = fechaActual.getFullYear();
+      let month = fechaActual.getMonth();
+
+      mostrarIconosBtn.addEventListener("click", function () {
+        iconosContainer.style.display = iconosContainer.style.display === "none" ? "flex" : "none";
+      });
+
+      prevYearBtn.addEventListener("click", function () {
+        year--;
+        actualizarCalendario();
+      });
+
+      prevMonthBtn.addEventListener("click", function () {
+        if (month === 0) {
+          month = 11;
+          year--;
+        } else {
+          month--;
+        }
+        actualizarCalendario();
+      });
+
+      nextMonthBtn.addEventListener("click", function () {
+        if (month === 11) {
+          month = 0;
+          year++;
+        } else {
+          month++;
+        }
+        actualizarCalendario();
+      });
+
+      nextYearBtn.addEventListener("click", function () {
+        year++;
+        actualizarCalendario();
+      });
+
+      exportarJPGBtn.addEventListener("click", function () {
+        // Obtener el contenedor del calendario
+        const contenedorCalendario = document.getElementById("calendario-container");
+
+        // Capturar el contenido del contenedor como una imagen
+        html2canvas(contenedorCalendario).then(function (canvas) {
+          // Convertir el canvas a una imagen en formato JPG
+          const imagenJPG = canvas.toDataURL("image/jpeg");
+
+          // Crear un enlace de descarga para la imagen
+          const enlaceDescarga = document.createElement("a");
+          enlaceDescarga.href = imagenJPG;
+          enlaceDescarga.download = "calendario.jpg";
+          enlaceDescarga.click();
+        });
+      });
+
+      function actualizarCalendario() {
+        const nombreMeses = [
+          "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+        ];
+        const nombreDias = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+        titulo.textContent = `Calendario War Mode - ${year}`;
+        mesActualSpan.textContent = `${nombreMeses[month]} ${year}`;
+        calendario.innerHTML = ""; // Limpiar calendario
+
+        // Crear días en el calendario
+        const primerDiaDelMes = new Date(year, month, 1).getDay();
+        const ultimoDiaDelMes = new Date(year, month + 1, 0).getDate();
+
+        // Agregar nombres de días
+        for (let i = 0; i < 7; i++) {
+          const nombreDia = document.createElement("div");
+          nombreDia.classList.add("dia", "nombre-dia");
+          nombreDia.textContent = nombreDias[i];
+          calendario.appendChild(nombreDia);
+        }
+
+        // Rellenar primeros días del mes anterior si es necesario
+        for (let i = 0; i < primerDiaDelMes; i++) {
+          const diaVacio = document.createElement("div");
+          diaVacio.classList.add("dia", "vacio");
+          calendario.appendChild(diaVacio);
+        }
+
+        // Rellenar días del mes actual
+        for (let i = 1; i <= ultimoDiaDelMes; i++) {
+          const dia = document.createElement("div");
+          dia.classList.add("dia");
+          dia.dataset.dia = i;
+          dia.textContent = i;
+
+          // Agregar evento de clic para mostrar iconos
+          dia.addEventListener("click", function () {
+            mostrarIconos(dia);
+          });
+
+          calendario.appendChild(dia);
+        }
+      }
+
+      function mostrarIconos(dia) {
+        const iconoArrastrado = iconosContainer.querySelector(".icono-dragging");
+        if (iconoArrastrado) {
+          // Clonar el icono arrastrado
+          const nuevoIcono = iconoArrastrado.cloneNode(true);
+          nuevoIcono.classList.remove("icono-dragging");
+          nuevoIcono.classList.add("icono");
+
+          // Agregar el icono al día
+          dia.appendChild(nuevoIcono);
+
+          // Eliminar el icono original del contenedor de iconos
+          iconoArrastrado.parentNode.removeChild(iconoArrastrado);
+        }
+      }
+
+      // Inicializar calendario al cargar la página
+      actualizarCalendario();
+
+      const iconos = document.querySelectorAll(".icono");
+
+      iconos.forEach((icono) => {
+        icono.addEventListener("dragstart", function (e) {
+          e.dataTransfer.setData("text/plain", this.textContent);
+          this.classList.add("icono-dragging");
+        });
+      });
+
+      iconosContainer.addEventListener("dragover", function (e) {
+        e.preventDefault();
+      });
+
+      iconosContainer.addEventListener("drop", function (e) {
+        e.preventDefault();
+        const iconoArrastrado = document.querySelector(".icono-dragging");
+        if (iconoArrastrado) {
+          iconoArrastrado.classList.remove("icono-dragging");
+        }
+      });
+    });
+  </script>
+</body>
+<footer>
+    <p>&copy; 2024 @icartecnology. Todos los derechos reservados.</p>
+  </footer>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
